@@ -38,6 +38,7 @@ class Npm2Deb(object):
         self.debian_standards = STANDARDS_VERSION
         self.debian_debhelper = DEBHELPER
         self.noclean = False
+        self.nosymlink = False
         self.upstream_watch = False
         if args:
             if 'upstream_license' in args and args['upstream_license']:
@@ -54,6 +55,8 @@ class Npm2Deb(object):
                 self.debian_debhelper = args['debhelper']
             if 'noclean' in args:
                 self.noclean = args['noclean']
+            if 'nosymlink' in args:
+                self.nosymlink = args['nosymlink']
 
         self.read_package_info()
         self.debian_name = 'node-%s' % utils.debianize_name(self.name)
@@ -144,11 +147,23 @@ and may not include tests.\n""")
 
     def run_uupdate(self):
         print ('\nCreating debian source package...')
-        _call('uupdate -b -f --upstream-version %s' % self.upstream_version, shell=True)
+        cmd = 'uupdate '
+
+        if self.nosymlink:
+            cmd += '--no-symlink '
+
+        cmd += '-b -f --upstream-version %s' % (self.upstream_version)
+        _call(cmd, shell=True)
 
     def run_uscan(self):
         print ('\nDownloading source tarball file using debian/watch file...')
-        _call('uscan --download-version %s' % self.upstream_version, shell=True)
+        cmd = 'uscan '
+
+        if self.nosymlink:
+            cmd += '--rename '
+
+        cmd += '--download-version %s' % (self.upstream_version)
+        _call(cmd, shell=True)
 
     def test_uscan(self):
         info = _getstatusoutput('uscan --watchfile "debian/watch" '

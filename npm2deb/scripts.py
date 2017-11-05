@@ -31,6 +31,9 @@ def main(argv=None):
         '-n', '--noclean', action="store_true",
         default=False, help='do not remove files downloaded with npm')
     parser_create.add_argument(
+        '--nosymlink', action="store_true",
+        default=False, help='pass --no-symlink parameter to uscan, having the original source being stored as orig.tar.(gz|bz2|xz) directly (i.e. for later pbuilder usage)')
+    parser_create.add_argument(
         '--debhelper', default=_.DEBHELPER,
         help='specify debhelper version [default: %(default)s]')
     parser_create.add_argument(
