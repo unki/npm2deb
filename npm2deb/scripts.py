@@ -31,6 +31,9 @@ def main(argv=None):
         '-n', '--noclean', action="store_true",
         default=False, help='do not remove files downloaded with npm')
     parser_create.add_argument(
+        '--nobuild', action="store_true",
+        default=False, help='skip trying to build the package')
+    parser_create.add_argument(
         '--debhelper', default=_.DEBHELPER,
         help='specify debhelper version [default: %(default)s]')
     parser_create.add_argument(

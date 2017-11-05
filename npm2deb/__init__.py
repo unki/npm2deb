@@ -38,6 +38,7 @@ class Npm2Deb(object):
         self.debian_standards = STANDARDS_VERSION
         self.debian_debhelper = DEBHELPER
         self.noclean = False
+        self.nobuild = False
         self.upstream_watch = False
         if args:
             if 'upstream_license' in args and args['upstream_license']:
@@ -54,6 +55,8 @@ class Npm2Deb(object):
                 self.debian_debhelper = args['debhelper']
             if 'noclean' in args:
                 self.noclean = args['noclean']
+            if 'nobuild' in args:
+                self.nobuild = args['nobuild']
 
         self.read_package_info()
         self.debian_name = 'node-%s' % utils.debianize_name(self.name)
@@ -93,6 +96,7 @@ class Npm2Deb(object):
         Try building deb package after creating required files using start().
         'uscan', 'uupdate' and 'dpkg-buildpackage' are run if debian/watch is OK.
         """
+
         uscan_info = self.test_uscan()
         if uscan_info[0] == 0:
             self.run_uscan()
@@ -100,6 +104,7 @@ class Npm2Deb(object):
 
             new_dir = '%s-%s' % (self.debian_name, self.upstream_version)
             utils.change_dir('../%s' % new_dir)
+
             self.run_buildpackage()
             self.edit_changelog()
 
@@ -138,7 +143,8 @@ and may not include tests.\n""")
     def run_buildpackage(self):
         print ("\nBuilding the binary package")
         _call('dpkg-source -b .', shell=True)
-        _call('dpkg-buildpackage', shell=True)
+        if not self.nobuild:
+            _call('dpkg-buildpackage', shell=True)
         # removing auto generated temporary files
         _call('debian/rules clean', shell=True)
 
